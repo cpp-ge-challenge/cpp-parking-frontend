@@ -110,6 +110,10 @@ body {
     font-size: 26px;
 }
 
+.lot-count-full {
+    color: red;
+}
+
 .lot-title {
     font-size: 26px;
     display: inline-block;
