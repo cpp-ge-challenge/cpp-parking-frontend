@@ -1,11 +1,40 @@
 <!DOCTYPE html>
 <html data-ng-app="parking">
 <head>
+    <link rel="stylesheet" href="css/build/app.build.css" />
     <script type="text/javascript" src="js/build/app.vendor.build.js"></script>
     <script type="text/javascript" src="js/build/app.build.js"></script>
+
+    <!-- domain restricted maps api key -->
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAAwsP1jALZR2JoVt_pZ_DcPheJ8Sn3ZOk&callback=mapCallback"></script>
+    <script type="text/javascript" src="js/label.js"></script>
 </head>
 <body data-ng-controller="mainCtrl as mainVm">
-    {{mainVm.test}}
-    {{mainVm.lotStats}}
+    <div class="sidebar">
+        <!-- <div class="sidebar-close-container">
+            <div class="sidebar-close">
+                <div class="sidebar-close-icon">&lt;&lt;</div>
+            </div>
+        </div> -->
+        <div class="sidebar-border"></div>
+        <div class="sidebar-content">
+            <div class="sidebar-title">
+                CPP Parking
+            </div>
+            <div class="sidebar-title-border"></div>
+            <div class="lot" data-ng-repeat="lot in mainVm.lotStats">
+                <div class="lot-title">
+                    Lot <span data-ng-bind="lot.name"></span>
+                </div>
+                <div class="lot-count">
+                    <span class="lot-count-full" data-ng-show="lot.occupancy == lot.maxCapacity">FULL</span>
+                    <span data-ng-show="lot.occupancy < lot.maxCapacity" data-ng-bind="lot.maxCapacity - lot.occupancy"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="maps-container">
+        <div id="map"></div>
+    </div>
 </body>
 </html>

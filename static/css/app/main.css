@@ -1,0 +1,117 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.maps-container {
+    width: auto;
+    height: 100%;
+    overflow: hidden;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+.sidebar {
+    padding-right: 10px;
+    width: 250px;
+    height: 100%;
+    float: left;
+    position: relative;
+
+    background: #f9f9f9;
+
+    transition: width .5s linear;
+}
+
+.sidebar.collapse {
+    width: 0px;
+}
+
+.sidebar-close-container {
+    position: absolute;
+    right: 0px;
+    height: 100%;
+    width: 0px;
+    z-index: 10;
+}
+
+.sidebar-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: absolute;
+    left: 0px;
+    height: 100%;
+    width: 7px;
+
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    background: #eee;
+    transition: width .1s linear;
+}
+
+.sidebar-border {
+    position: absolute;
+    right: 0px;
+    height: 100%;
+    width: 7px;
+    z-index: 10;
+    border-right: 3px solid #ebb325;
+    background: #edc150;
+}
+
+.sidebar-close:hover {
+    width: 10px;
+    cursor: pointer;
+}
+
+.sidebar-close-icon {
+    width: 5px;
+    height: 5px;
+    background: red;
+}
+
+.sidebar-title {
+    font-size: 30px;
+    text-align: center;
+    padding: 15px;
+    color: #0c703e;
+}
+
+.sidebar-title-border {
+    height: 1px;
+    width: 90%;
+    position: relative;
+    left: 5%;
+    background: #ddd;
+    margin-bottom: 10px;
+}
+
+.lot {
+    padding: 10px;
+}
+
+.lot:nth-child(even) {
+    background: #eee;
+}
+
+.lot-count {
+    display: inline-block;
+    float: right;
+    font-size: 26px;
+}
+
+.lot-title {
+    font-size: 26px;
+    display: inline-block;
+    color: #00512b;
+}
