@@ -24,7 +24,7 @@
             <div class="sidebar-title-border"></div>
             <div class="lot" data-ng-repeat="lot in mainVm.lotStats">
                 <div class="lot-title">
-                    Lot <span data-ng-bind="lot.name"></span>
+                    <span data-ng-bind="lot.prefix"></span> <span data-ng-bind="lot.name"></span>
                 </div>
                 <div class="lot-count">
                     <span class="lot-count-full" data-ng-show="lot.occupancy == lot.maxCapacity">FULL</span>
