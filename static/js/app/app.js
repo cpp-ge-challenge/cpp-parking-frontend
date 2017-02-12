@@ -75,23 +75,31 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
             });
         });
 
-        var shapeSettings = {
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.2,
-            clickable: false
-        };
 
         for (var lotName in vm.lotStats) {
             var lot = vm.lotStats[lotName];
-            // Construct polygon.
-            var settings = angular.copy(shapeSettings);
-            settings.paths = lot.points;
-            var bermudaTriangle = new google.maps.Polygon(settings);
-            bermudaTriangle.setMap(map);
 
+            // get lot color
+            var fullness = 0.0;
+            if (typeof lot.occupancy !== 'undefined' && typeof lot.maxCapacity !== 'undefined') {
+                fullness = lot.occupancy/lot.maxCapacity;
+            }
+            var color = colorFade('#00FF00', '#FF0000', 0.0);
+
+            // Construct polygon
+            var poly = new google.maps.Polygon({
+                strokeColor: color,
+                fillColor: color,
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillOpacity: 0.2,
+                clickable: false,
+                paths: lot.points,
+                map: map
+            });
+
+
+            // get lot label text
             var text = lot.name;
             if (typeof lot.maxCapacity !== 'undefined' && typeof lot.occupancy !== 'undefined') {
                 text += ' ' + (lot.maxCapacity - lot.occupancy) + '/' + lot.maxCapacity;
@@ -101,16 +109,52 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
             var label = new Label({
                 'text': text,
                 map: map,
-                position: new google.maps.LatLng(lot.center.lat, lot.center.lng),
-                optimized: false,
-                zIndex: 90,
-                style: {
-                    color: 'green'
-                }
+                position: new google.maps.LatLng(lot.center.lat, lot.center.lng)
            });
 
+           // attach map objects to lot
+           lot.mapPoly = poly;
            lot.mapLabel = label;
         }
+    };
+
+    // c1, c2 = hex string colors
+    // f = fade %, 0.0 - 1.0
+    var colorFade = function(c1, c2, f) {
+        if (c1.indexOf('#') === 0) {
+            c1 = c1.substr(1);
+        }
+
+        if (c2.indexOf('#') === 0) {
+            c2 = c2.substr(1);
+        }
+
+        // hex string to int
+        function h2i(h) {
+            return parseInt(h, 16);
+        }
+
+        // int to padded hex string
+        function i2h(i) {
+            var str = Math.round(i).toString(16);
+            if (str.length === 1) {
+                str = '0' + str;
+            }
+            return str;
+        }
+
+        var r1 = h2i(c1.substr(0,2));
+        var g1 = h2i(c1.substr(2,2));
+        var b1 = h2i(c1.substr(4,2));
+        var r2 = h2i(c2.substr(0,2));
+        var g2 = h2i(c2.substr(2,2));
+        var b2 = h2i(c2.substr(4,2));
+
+        var r3 = r1 * (1.0 - f) + r2 * f;
+        var g3 = g1 * (1.0 - f) + g2 * f;
+        var b3 = b1 * (1.0 - f) + b2 * f;
+
+        return '#' + i2h(r3) + i2h(g3) + i2h(b3);
     };
 
     // wait for map to be come ready
@@ -145,8 +189,18 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
                     }
                 }
 
-                // update label on map
+
                 lot = vm.lotStats[lotName];
+
+                // update color on map
+                if (typeof lot.mapPoly !== 'undefined') {
+                    var fullness = lot.occupancy/lot.maxCapacity;
+                    var color = colorFade('#00FF00', '#FF0000', fullness);
+                    lot.mapPoly.setOptions({ 'strokeColor': color, 'fillColor': color });
+                }
+
+
+                // update label on map
                 if (typeof lot.mapLabel !== 'undefined') {
                     lot.mapLabel.setOptions({'text': lot.name + ' ' + (lot.maxCapacity - lot.occupancy) + '/' + lot.maxCapacity });
                 }
