@@ -13,6 +13,8 @@ var app = angular.module('parking', ['ngWebSocket']);
 
 app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($scope, $http, $websocket, $sce) {
     var vm = this;
+    vm.disconnected = false;
+    vm.loading = true;
 
     // TODO: move this to a webservice or something and preprocess points into latlng objects
     vm.lotStats = {
@@ -185,7 +187,7 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
                 paths: pointsToLatLng(lot.points),
                 map: map
             });
-
+            lot.mapPoly = poly;
 
             // get lot label text
             var text = lot.name;
@@ -200,11 +202,8 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
                     map: map,
                     position: new google.maps.LatLng(lot.center.lat, lot.center.lng)
                 });
+                lot.mapLabel = label;
             }
-
-           // attach map objects to lot
-           lot.mapPoly = poly;
-           lot.mapLabel = label;
         }
     };
 
@@ -258,15 +257,6 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
     });
 
     var updateLotStats = function(lots) {
-        var keys = Object.keys(lots);
-        if (keys.length === 2 && keys.indexOf('lot') !== -1 && keys.indexOf('occupancy') !== -1) {
-            var nlots = {};
-            nlots[lots.lot] = {
-                'occupancy': lots.occupancy
-            };
-            lots = nlots;
-        }
-
         // loop over lots
         for (var lotName in lots) {
             // make sure lot exists
@@ -294,6 +284,8 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
                 }
             }
         }
+
+        $scope.$apply();
     };
 
     var wsConnect = function() {
@@ -301,8 +293,60 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
         var ws = $websocket('ws://' + host + '/api/wlots');
 
         ws.onMessage(function(message) {
-            updateLotStats(JSON.parse(message.data));
+            vm.loading = false;
+            vm.disconnected = false;
+
+            var data = JSON.parse(message.data);
+            switch (data.header) {
+                case 'KeepAliveMessage':
+                    // heartbeat
+                    break;
+                case 'FullStateUpdate':
+                    // initial lot state
+                    updateLotStats(data);
+                    break;
+                case 'DiffUpdate':
+                    // update lot state
+                    var lots = {};
+                    lots[data.lot] = {
+                        'occupancy': data.occupancy
+                    };
+                    updateLotStats(lots);
+                    break;
+                default:
+                    console.log('Unknown packet type: ' + data.header);
+                    console.log(data);
+            }
         });
+
+        var retry = false;
+        ws.onClose(function() {
+            if (retry) {
+                return;
+            }
+            retry = true;
+            console.log('close retry');
+            vm.disconnected = true;
+            setTimeout(function() {
+                wsConnect();
+            }, 1000);
+        });
+
+        ws.onError(function() {
+            if (retry) {
+                return;
+            }
+            retry = true;
+            console.log('err retry');
+            vm.disconnected = true;
+            setTimeout(function() {
+                wsConnect();
+            }, 1000);
+        });
+    };
+
+    vm.isUndefined = function(a) {
+        return typeof a === 'undefined';
     };
 
     wsConnect();

@@ -27,7 +27,8 @@
                     <span data-ng-bind="lot.prefix"></span> <span data-ng-bind="lot.name"></span>
                 </div>
                 <div class="lot-count">
-                    <span class="lot-count-full" data-ng-show="lot.occupancy == lot.maxCapacity">FULL</span>
+                    <span class="lot-count-full" data-ng-show="lot.occupancy == lot.maxCapacity && !mainVm.isUndefined(lot.occupancy)">FULL</span>
+                    <span data-ng-show="mainVm.isUndefined(lot.occupancy)">---</span>
                     <span data-ng-show="lot.occupancy < lot.maxCapacity" data-ng-bind="lot.maxCapacity - lot.occupancy"></span>
                 </div>
             </div>
@@ -35,6 +36,8 @@
     </div>
     <div class="maps-container">
         <div id="map"></div>
+        <div class="map-dc-overlay" data-ng-show="mainVm.disconnected">Disconnected!</div>
+        <div class="map-c-overlay" data-ng-show="mainVm.loading && !mainVm.disconnected">Connecting...</div>
     </div>
 </body>
 </html>

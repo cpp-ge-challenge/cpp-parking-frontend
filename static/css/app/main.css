@@ -124,3 +124,27 @@ body {
     display: inline-block;
     color: #00512b;
 }
+
+.map-dc-overlay {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 5px 15px;
+    border-top-left-radius: 3px;
+    background: #f98282;
+    border-top: 1px solid red;
+    border-left: 1px solid red;
+    font-size: 16px;
+}
+
+.map-c-overlay {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    padding: 5px 15px;
+    border-top-left-radius: 3px;
+    background: #b4b4f7;
+    border-top: 1px solid blue;
+    border-left: 1px solid blue;
+    font-size: 16px;
+}
