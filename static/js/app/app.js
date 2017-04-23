@@ -3,18 +3,64 @@ mapCallback = function() {
     mapReady = true;
 };
 
-// var points = [];
-// getPoints = function() {
-//     console.log(JSON.stringify(points, null, 4));
-//     return points;
-// };
+// c1, c2 = hex string colors
+// f = fade %, 0.0 - 1.0
+var colorFade = function(c1, c2, f) {
+    if (c1.indexOf('#') === 0) {
+        c1 = c1.substr(1);
+    }
+
+    if (c2.indexOf('#') === 0) {
+        c2 = c2.substr(1);
+    }
+
+    // hex string to int
+    function h2i(h) {
+        return parseInt(h, 16);
+    }
+
+    // int to padded hex string
+    function i2h(i) {
+        var str = Math.round(i).toString(16);
+        if (str.length === 1) {
+            str = '0' + str;
+        }
+        return str;
+    }
+
+    var r1 = h2i(c1.substr(0,2));
+    var g1 = h2i(c1.substr(2,2));
+    var b1 = h2i(c1.substr(4,2));
+    var r2 = h2i(c2.substr(0,2));
+    var g2 = h2i(c2.substr(2,2));
+    var b2 = h2i(c2.substr(4,2));
+
+    var r3 = r1 * (1.0 - f) + r2 * f;
+    var g3 = g1 * (1.0 - f) + g2 * f;
+    var b3 = b1 * (1.0 - f) + b2 * f;
+
+    return '#' + i2h(r3) + i2h(g3) + i2h(b3);
+};
 
 var app = angular.module('parking', ['ngWebSocket']);
 
-app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($scope, $http, $websocket, $sce) {
+app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', '$timeout', function($scope, $http, $websocket, $sce, $timeout) {
     var vm = this;
     vm.disconnected = false;
     vm.loading = true;
+
+    // suggested lot (hard coded for now)
+    vm.suggestedLot = {
+        'name': 'Overflow',
+        'spaces': 950,
+        'capacity': 1000
+    };
+    vm.suggestedLot.color = colorFade('#c5efc2', '#f89d98', 1.0 - vm.suggestedLot.spaces/vm.suggestedLot.capacity);
+
+    // map stuff
+    vm.mapExpanded = false;
+    vm.mapReady = false;
+    var map = null;
 
     // TODO: move this to a webservice or something and preprocess points into latlng objects
     vm.lotStats = {
@@ -127,6 +173,17 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
         },
     };
 
+    vm.expandMap = function() {
+        console.log('mapresize');
+        vm.mapExpanded = !vm.mapExpanded;
+        if (map !== null) {
+            // wait for end of digest cycle
+            $timeout(function() {
+                google.maps.event.trigger(map, 'resize');
+            });
+        }
+    };
+
     // takes points in format [ lng, lat, lng, lat, .... ]
     // and returns array of objects
     var pointsToLatLng = function(points) {
@@ -141,11 +198,11 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
     };
 
     var initMap = function() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 16,
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 14,
             disableDefaultUI: true,
-            center: {lat: 34.056, lng: -117.818},
-            mapTypeId: 'terrain',
+            center: { 'lat': 34.058294917385034, 'lng': -117.82173871994019 },
+            mapTypeId: 'roadmap',
             styles: [
                 {
                     featureType: "poi",
@@ -205,45 +262,6 @@ app.controller('mainCtrl', ['$scope', '$http', '$websocket', '$sce', function($s
                 lot.mapLabel = label;
             }
         }
-    };
-
-    // c1, c2 = hex string colors
-    // f = fade %, 0.0 - 1.0
-    var colorFade = function(c1, c2, f) {
-        if (c1.indexOf('#') === 0) {
-            c1 = c1.substr(1);
-        }
-
-        if (c2.indexOf('#') === 0) {
-            c2 = c2.substr(1);
-        }
-
-        // hex string to int
-        function h2i(h) {
-            return parseInt(h, 16);
-        }
-
-        // int to padded hex string
-        function i2h(i) {
-            var str = Math.round(i).toString(16);
-            if (str.length === 1) {
-                str = '0' + str;
-            }
-            return str;
-        }
-
-        var r1 = h2i(c1.substr(0,2));
-        var g1 = h2i(c1.substr(2,2));
-        var b1 = h2i(c1.substr(4,2));
-        var r2 = h2i(c2.substr(0,2));
-        var g2 = h2i(c2.substr(2,2));
-        var b2 = h2i(c2.substr(4,2));
-
-        var r3 = r1 * (1.0 - f) + r2 * f;
-        var g3 = g1 * (1.0 - f) + g2 * f;
-        var b3 = b1 * (1.0 - f) + b2 * f;
-
-        return '#' + i2h(r3) + i2h(g3) + i2h(b3);
     };
 
     // wait for map to be come ready
