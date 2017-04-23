@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html data-ng-app="parking">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/build/app.build.css" />
     <script type="text/javascript" src="js/build/app.vendor.build.js"></script>
     <script type="text/javascript" src="js/build/app.build.js"></script>
@@ -10,18 +11,40 @@
     <script type="text/javascript" src="js/label.js"></script>
 </head>
 <body data-ng-controller="mainCtrl as mainVm">
-    <div class="sidebar">
-        <!-- <div class="sidebar-close-container">
-            <div class="sidebar-close">
-                <div class="sidebar-close-icon">&lt;&lt;</div>
-            </div>
-        </div> -->
+    <!-- <div style="visibility:hidden;" class="sidebar">
         <div class="sidebar-border"></div>
         <div class="sidebar-content">
             <div class="sidebar-title">
                 CPP Parking
             </div>
             <div class="sidebar-title-border"></div>
+        </div>
+    </div> -->
+    <div class="maps-container" data-ng-class="{'expanded': mainVm.mapExpanded}">
+        <div id="map"></div>
+        <div class="map-dc-overlay" data-ng-show="mainVm.disconnected">Disconnected!</div>
+        <div class="map-c-overlay" data-ng-show="mainVm.loading && !mainVm.disconnected">Connecting...</div>
+        <div class="map-expand-overlay" data-ng-click="mainVm.expandMap()"></div>
+    </div>
+    <div class="bottom">
+        <div class="header">
+            <img src="/images/calpoly.png" class="header-img"/>
+            <div class="header-text">Live Parking Status</div>
+        </div>
+        <div class="suggest" data-ng-show="mainVm.suggestedLot" data-ng-style="{'background-color': mainVm.suggestedLot.color}">
+            <div class="suggest-title">
+                Suggested Lot: {{ mainVm.suggestedLot.name }}
+            </div>
+            <div class="suggest-subtext">
+                {{ mainVm.suggestedLot.spaces }} Spaces Available
+            </div>
+        </div>
+
+        <div class="occupancy">
+            <div class="occupancy-title">
+                Live Lot Occupancy
+            </div>
+            <div class="occupancy-hr"></div>
             <div class="lot" data-ng-repeat="lot in mainVm.lotStats">
                 <div class="lot-title">
                     <span data-ng-bind="lot.prefix"></span> <span data-ng-bind="lot.name"></span>
@@ -33,11 +56,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    <div class="maps-container">
-        <div id="map"></div>
-        <div class="map-dc-overlay" data-ng-show="mainVm.disconnected">Disconnected!</div>
-        <div class="map-c-overlay" data-ng-show="mainVm.loading && !mainVm.disconnected">Connecting...</div>
     </div>
 </body>
 </html>

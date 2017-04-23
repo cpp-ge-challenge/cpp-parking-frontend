@@ -10,8 +10,17 @@ body {
 
 .maps-container {
     width: auto;
-    height: 100%;
+    height: 50%;
     overflow: hidden;
+    position: relative;
+}
+
+.maps-container.expanded {
+    height: 100%;
+}
+
+.bottom {
+    background: #f9f9f9;
 }
 
 #map {
@@ -120,7 +129,7 @@ body {
 }
 
 .lot-title {
-    font-size: 26px;
+    font-size: 22px;
     display: inline-block;
     color: #00512b;
 }
@@ -147,4 +156,75 @@ body {
     border-top: 1px solid blue;
     border-left: 1px solid blue;
     font-size: 16px;
+}
+
+.map-expand-overlay {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, .90);
+    background-image: url('/images/expand.png');
+    background-size: contain;
+    cursor: pointer;
+}
+
+.map-logo-overlay {
+    position: absolute;
+    left: 5px;
+    bottom: 5px;
+    width: 133px;
+    height: 18px;
+    background-image: url('/images/calpoly.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.header {
+    padding: 15px 10px;
+    box-shadow: 0px -3px 4px -4px #777;
+    position: relative;
+    z-index: 10;
+}
+
+.header-img {
+    width: 100%;
+}
+
+.header-text {
+    font-size: 20px;
+    margin-top: 5px;
+}
+
+.suggest {
+    padding: 15px 10px;
+    background: #c5efc2;
+    box-shadow: 0px 4px 4px -4px #777 inset, 0px -4px 4px -4px #777 inset;
+}
+
+.suggest-title {
+    font-size: 24px;
+}
+
+.suggest-subtext {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.occupancy {
+}
+
+.occupancy-title {
+    padding: 15px 10px 10px 10px;
+    font-size: 24px;
+}
+
+.occupancy-hr {
+    margin: 0px 10px;
+    height: 1px;
+    width: calc(100% - 20px);
+    background: #ccc;
 }
